@@ -23,9 +23,21 @@
       </div>
 
       <div v-if="result" class="result">
+        <br />
         <h3>📋 分析結果</h3>
-        <p><strong>Caption：</strong> {{ result.caption }}</p>
-        <p><strong>信心值：</strong> {{ (result.captionConfidence * 100).toFixed(2) }}%</p>
+        <p><strong>辨識結果：</strong> {{ result.gptDescription.description }}</p>
+        <p><strong>標籤：</strong>
+          <span v-for="(tag, i) in result.gptDescription.extraTags" :key="i" class="hashtag">
+            #{{ tag }} <span v-if="i < result.gptDescription.extraTags.length - 1">, </span>
+          </span>
+        </p>
+        <p><strong>信心值：</strong>
+          <span class="highlight">{{
+            (result.captionConfidence * 100).toFixed(2)
+          }}%</span>
+        </p>
+        <p><strong>分析時間：</strong> {{ (result.requestDurationMs).toFixed(2) }} 秒</p>
+        <br />
 
         <table class="result-table">
           <thead>
@@ -42,7 +54,12 @@
           </tbody>
         </table>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+
+      <!-- 錯誤訊息 -->
+      <div v-if="error" class="error">
+        <strong>{{ error.code }}</strong><br />
+        {{ error.message }}
+      </div>
     </div>
   </div>
 </template>
@@ -84,7 +101,12 @@ async function upload() {
 
     result.value = res.data
   } catch (err) {
-    error.value = err?.response?.data?.message || err.message || '上傳失敗'
+    const data = err?.response?.data
+    if (data?.code && data?.message) {
+      error.value = { code: data.code, message: data.message }
+    } else {
+      error.value = { code: 'Error', message: err.message || '上傳失敗' }
+    }
   } finally {
     loading.value = false
   }
@@ -103,9 +125,9 @@ html, body {
 .container {
   min-height: 100vh;
   display: flex;
-  flex-direction: column; /* 改為直向排列 */
-  justify-content: flex-start; /* 從上方開始排 */
-  align-items: center; /* 水平置中 */
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   padding: 32px 16px;
   font-family: 'Inter', 'Arial', sans-serif;
   color: #0b2540;
@@ -114,14 +136,14 @@ html, body {
 
 /* 卡片：冷白玻璃 + 藍色霓虹 */
 .card {
-  background: rgba(255, 255, 255, 0.12); /* 更淡一點的玻璃感 */
+  background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(0, 200, 255, 0.4);
   border-radius: 20px;
   padding: 40px;
   max-width: 700px;
   width: 100%;
   max-height: 90vh;
-  overflow-y: auto;  /* 保留這個滾動 */
+  overflow-y: auto;
   box-shadow: 0 0 30px rgba(0, 200, 255, 0.4);
   backdrop-filter: blur(18px);
   text-align: center;
@@ -212,6 +234,15 @@ html, body {
   background: linear-gradient(90deg, #003344, #005577);
 }
 
+.hashtag {
+  color: #888888;
+}
+
+.highlight {
+  background-color: #ffeb3b;
+  padding: 0 4px; /* 螢光筆效果 */
+}
+
 /* 表頭 */
 .result-table th {
   background: linear-gradient(90deg, #003344, #005577);
@@ -261,8 +292,16 @@ html, body {
 
 /* 錯誤訊息 */
 .error {
-  margin-top: 12px;
-  color: #0a0808;
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 0, 0, 0.15);
+  border: 1px solid rgba(255, 50, 50, 0.6);
+  color: #ff4d4d;
+  font-weight: bold;
+  text-align: left;
+  white-space: pre-line;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
 }
 
 /* 手機小螢幕 */
@@ -279,7 +318,7 @@ html, body {
   .upload-area button,
   .file-label {
     width: 100%;
-    font-size: clamp(0.9rem, 3vw, 1.2rem); 
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
   }
 
   .preview img {
