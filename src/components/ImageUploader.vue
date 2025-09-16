@@ -54,10 +54,11 @@
           </tbody>
         </table>
       </div>
+      <br />
 
       <!-- 錯誤訊息 -->
       <div v-if="error" class="error">
-        <strong>{{ error.code }}</strong><br />
+        <strong>⚠️ {{ error.code }}</strong><br />
         {{ error.message }}
       </div>
     </div>
@@ -296,7 +297,6 @@ html, body {
   padding: 16px;
   border-radius: 12px;
   background: rgba(255, 0, 0, 0.15);
-  border: 1px solid rgba(255, 50, 50, 0.6);
   color: #ff4d4d;
   font-weight: bold;
   text-align: left;
