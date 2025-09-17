@@ -15,45 +15,48 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     permissions:
-       id-token: write
-       contents: read
+      id-token: write
+      contents: read
     steps:
+      # 1️⃣ Checkout repo
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
 
-      # ✅ 強制使用 Node.js 20.19
-      - name: Setup Node.js
+      # 2️⃣ 安裝 Node 20.19
+      - name: Setup Node.js 20.19
         uses: actions/setup-node@v3
         with:
           node-version: '20.19.0'
 
-      - name: Install OIDC Client from Core Package
-        run: npm install @actions/core@1.6.0 @actions/http-client
+      # 3️⃣ 安裝依賴
+      - name: Install dependencies
+        run: npm install
 
+      # 4️⃣ Build app
+      - name: Build app
+        run: npm run build
+
+      # 5️⃣ 取得 GitHub Id Token
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
         with:
-           script: |
-               const coredemo = require('@actions/core')
-               return await coredemo.getIDToken()
-           result-encoding: string
+          script: |
+            return await core.getIDToken();
+          result-encoding: string
 
+      # 6️⃣ Deploy 到 Azure Static Web Apps
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_WAVE_05B5B0900 }}
-          action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          app_location: "/"       # App source code path
-          api_location: ""        # Api source code path - optional
-          output_location: "dist" # Built app content directory - optional
-          app_build_command: "npm run build"
+          with:
+            azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_WAVE_05B5B0900 }}
+            action: "upload"
+            app_location: "dist"
+            output_location: "dist" # Vue + Vite build output
           github_id_token: ${{ steps.idtoken.outputs.result }}
-          ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -65,4 +68,5 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           action: "close"
+
 
