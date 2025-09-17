@@ -31,6 +31,6 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ORANGE_PLANT_03636B100 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/"        # Vue 專案在 repo 根目錄
-          output_location: "dist"  # Vite build 後輸出資料夾
-          skip_app_build: true     # 跳過 Oryx 自動 build，因為已經自己 build 完成
+          app_location: "dist"       # 這裡指向已 build 完的 dist
+          output_location: ""        # 不需要再輸出
+          skip_app_build: true       # 跳過 Oryx 自動 build，因為已經自己 build 完成
