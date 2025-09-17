@@ -1,0 +1,36 @@
+name: Azure Static Web Apps CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy_job:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v3
+
+      # 讓 GitHub Actions 使用正確 Node.js 版本
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+
+      # 安裝並打包 Vue 專案
+      - name: Install and Build
+        run: |
+          npm install
+          npm run build
+
+      # 部署到 Azure Static Web Apps
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "/"        # Vue 專案在 repo 根目錄
+          output_location: "dist"  # Vite build 後輸出資料夾
+          skip_app_build: true     # 跳過 Oryx 自動 build，因為已經自己 build 完成
