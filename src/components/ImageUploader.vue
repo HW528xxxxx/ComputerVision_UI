@@ -306,11 +306,21 @@ html, body {
 
 /* 手機小螢幕 */
 @media (max-width: 480px) {
+  body {
+    background: #ffffff !important;
+  }
+
+  .container {
+    background: #ffffff !important;
+  }
+
   .card {
     padding: 20px;
     max-width: 95%;
     margin: 0 auto;
-    background: transparent;
+
+    /* 移除陰影、邊框，但保留白底 */
+    background: #ffffff;
     box-shadow: none;
     border: none;
   }
@@ -320,13 +330,13 @@ html, body {
     line-height: 1.6rem;
     margin-bottom: 16px;
   }
+
   .upload-area {
     flex-direction: column;
     gap: 10px;
     align-items: center;
   }
 
-  /* 檔案選擇按鈕：固定寬度 */
   .upload-area label {
     width: 100%;
     max-width: 200px;
@@ -335,7 +345,6 @@ html, body {
     text-align: center;
   }
 
-  /* 上傳按鈕：自適應文字 */
   .upload-area button {
     padding: 10px 20px;
     width: 85%;
