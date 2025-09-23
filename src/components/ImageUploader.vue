@@ -125,6 +125,7 @@ html, body {
 /* 容器透明，像科幻走廊 */
 .container {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -309,6 +310,9 @@ html, body {
     padding: 20px;
     max-width: 95%;
     margin: 0 auto;
+    background: transparent;
+    box-shadow: none;
+    border: none;
   }
 
   .title {
@@ -335,9 +339,7 @@ html, body {
   .upload-area button {
     padding: 10px 20px;
     width: 85%;
-    max-width: 200px;
     font-size: 1rem;
-    max-width: none;
     align-self: center;
   }
 
