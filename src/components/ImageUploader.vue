@@ -316,7 +316,6 @@ html, body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #ffffff;
     color: #000000;
     padding: 16px;
     box-sizing: border-box;
