@@ -132,7 +132,6 @@ html, body {
   align-items: center;
   padding: 32px 16px;
   font-family: 'Inter', 'Arial', sans-serif;
-  background: #ffffff;
 }
 
 /* 卡片：冷白玻璃 + 藍色霓虹 */
