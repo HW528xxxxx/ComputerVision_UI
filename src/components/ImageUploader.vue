@@ -307,22 +307,28 @@ html, body {
 /* 手機小螢幕 */
 @media (max-width: 480px) {
   body {
-    background: #ffffff !important;
+    background: #ffffff;
+    color: #000000;
   }
 
   .container {
-    background: #ffffff !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #ffffff;
+    color: #000000;
+    padding: 16px;
+    box-sizing: border-box;
   }
 
   .card {
-    padding: 20px;
-    max-width: 95%;
-    margin: 0 auto;
-
-    /* 移除陰影、邊框，但保留白底 */
     background: #ffffff;
     box-shadow: none;
     border: none;
+    color: #000000;
+    max-width: 400px;
+    width: 100%;
   }
 
   .title {
