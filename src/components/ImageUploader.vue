@@ -131,7 +131,6 @@ html, body {
   align-items: center;
   padding: 32px 16px;
   font-family: 'Inter', 'Arial', sans-serif;
-  color: #0b2540;
   background: #ffffff;
 }
 
@@ -306,24 +305,51 @@ html, body {
 
 /* 手機小螢幕 */
 @media (max-width: 480px) {
+  .card {
+    padding: 20px;
+    max-width: 95%;
+    margin: 0 auto;
+  }
+
   .title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+    line-height: 1.6rem;
+    margin-bottom: 16px;
   }
   .upload-area {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
   }
 
-  .upload-area label,
-  .upload-area button {
-    width: 80%; 
-    max-width: 300px;
-    box-sizing: border-box;
+  /* 檔案選擇按鈕：固定寬度 */
+  .upload-area label {
+    width: 100%;
+    max-width: 200px;
+    font-size: 1rem;
+    padding: 10px;
     text-align: center;
   }
+
+  /* 上傳按鈕：自適應文字 */
+  .upload-area button {
+    padding: 10px 20px;
+    width: 85%;
+    max-width: 200px;
+    font-size: 1rem;
+    max-width: none;
+    align-self: center;
+  }
+
   .preview img {
-    max-height: 35vh;
+    max-height: 200px;
+    width: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  .result-table {
+    font-size: 0.85rem;
   }
 }
 </style>
