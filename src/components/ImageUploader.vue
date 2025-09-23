@@ -132,7 +132,7 @@ html, body {
   padding: 32px 16px;
   font-family: 'Inter', 'Arial', sans-serif;
   color: #0b2540;
-  background: transparent;
+  background: #ffffff;
 }
 
 /* 卡片：冷白玻璃 + 藍色霓虹 */
@@ -309,18 +309,19 @@ html, body {
   .title {
     font-size: 1.5rem;
   }
-
   .upload-area {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+    align-items: center;
   }
 
-  .upload-area button,
-  .file-label {
-    width: 100%;
-    font-size: clamp(0.9rem, 3vw, 1.2rem);
+  .upload-area label,
+  .upload-area button {
+    width: 80%; 
+    max-width: 300px;
+    box-sizing: border-box;
+    text-align: center;
   }
-
   .preview img {
     max-height: 35vh;
   }
