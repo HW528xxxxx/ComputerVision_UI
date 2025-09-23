@@ -307,7 +307,6 @@ html, body {
 /* 手機小螢幕 */
 @media (max-width: 480px) {
   body {
-    background: #ffffff;
     color: #000000;
   }
 
