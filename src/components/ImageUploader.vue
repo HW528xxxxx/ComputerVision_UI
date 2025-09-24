@@ -8,6 +8,18 @@
         <label for="fileUpload" class="file-label">選擇圖片</label>
         <input id="fileUpload" type="file" accept="image/*" @change="onFileChange" />
 
+        <!-- 開啟相機 -->
+        <button class="file-label" @click="openCamera">開啟相機</button>
+
+        <!-- 相機預覽 -->
+        <div v-if="cameraActive" class="camera-preview">
+          <video ref="video" autoplay playsinline></video>
+          <div class="button-group">
+            <button class="file-label" @click="capturePhoto">📸 拍照</button>
+            <button class="file-label" @click="closeCamera">❌ 關閉</button>
+          </div>
+        </div>
+
         <!-- 上傳按鈕 -->
         <button class="file-label" :disabled="!file || loading" @click="upload">
           {{ loading ? '分析中...' : '上傳分析' }}
@@ -74,6 +86,9 @@ const previewUrl = ref('')
 const loading = ref(false)
 const result = ref(null)
 const error = ref('')
+const cameraActive = ref(false)
+const video = ref(null)
+let stream = null  
 
 function onFileChange(e) {
   error.value = ''
@@ -111,6 +126,49 @@ async function upload() {
   } finally {
     loading.value = false
   }
+}
+
+async function openCamera() {
+  error.value = ''
+  result.value = null
+  previewUrl.value = ''
+  cameraActive.value = true
+
+  try {
+    // 判斷是不是手機裝置 → 如果是就用後鏡頭
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: isMobile
+        ? { facingMode: { ideal: "environment" } }
+        : true
+    })
+
+    video.value.srcObject = stream
+  } catch (err) {
+    error.value = { code: 'CameraError', message: '無法存取相機: ' + err.message }
+  }
+}
+
+function closeCamera() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop())
+  }
+  cameraActive.value = false
+}
+
+function capturePhoto() {
+  const canvas = document.createElement('canvas')
+  canvas.width = video.value.videoWidth
+  canvas.height = video.value.videoHeight
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(video.value, 0, 0, canvas.width, canvas.height)
+
+  canvas.toBlob(blob => {
+    file.value = new File([blob], 'capture.jpg', { type: 'image/jpeg' })
+    previewUrl.value = URL.createObjectURL(blob)
+    closeCamera()
+  }, 'image/jpeg')
 }
 </script>
 
@@ -207,6 +265,13 @@ html, body {
 .upload-area button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.camera-preview .button-group {
+  display: flex;
+  gap: 12px; /* ✅ 按鈕之間的距離 */
+  margin-top: 8px;
+  justify-content: center; /* 如果要置中 */
 }
 
 /* 圖片預覽 */
