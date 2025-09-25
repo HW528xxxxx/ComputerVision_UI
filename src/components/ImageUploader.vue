@@ -43,8 +43,7 @@
           <p><strong>辨識結果：</strong> {{ result.gptDescription.description }}</p>
 
           <!-- TTS 播放按鈕 -->
-
-        <!-- 語速滑桿 -->
+          <!-- 語速滑桿 -->
           <div class="tts-controls">
             <label>語速: {{ ttsSpeed.toFixed(1) }}x</label>
             <input type="range" min="0.5" max="3" step="0.1" v-model.number="ttsSpeed" />
@@ -122,6 +121,7 @@ async function upload() {
   loading.value = true
   error.value = ''
   result.value = null
+  ttsAudio.value = null
 
   try {
     const form = new FormData()
