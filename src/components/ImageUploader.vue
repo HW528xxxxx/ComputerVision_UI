@@ -38,6 +38,18 @@
         <br />
         <h3>📋 分析結果</h3>
         <p><strong>辨識結果：</strong> {{ result.gptDescription.description }}</p>
+
+        <!-- TTS 播放按鈕 -->
+
+        <!-- 語速滑桿 -->
+        <div class="tts-controls">
+          <label>語速: {{ ttsSpeed.toFixed(1) }}x</label>
+          <input type="range" min="0.5" max="3" step="0.1" v-model.number="ttsSpeed" />
+          <button class="file-label" :disabled="ttsLoading" @click="playTts">
+            {{ ttsLoading ? '生成語音中...' : '🔊 播放語音' }}
+          </button>
+          <audio ref="audioPlayer" hidden></audio>
+        </div>
         <p><strong>標籤：</strong>
           <span v-for="(tag, i) in result.gptDescription.extraTags" :key="i" class="hashtag">
             #{{ tag }} <span v-if="i < result.gptDescription.extraTags.length - 1">, </span>
@@ -78,7 +90,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import axios from 'axios'
 
 const file = ref(null)
@@ -88,7 +100,12 @@ const result = ref(null)
 const error = ref('')
 const cameraActive = ref(false)
 const video = ref(null)
-let stream = null  
+let stream = null 
+const ttsLoading = ref(false)
+const audioPlayer = ref(null)
+const ttsAudio = ref(null)
+const ttsSpeed = ref(1.5)
+const playing = ref(false)
 
 function onFileChange(e) {
   error.value = ''
@@ -170,6 +187,61 @@ function capturePhoto() {
     closeCamera()
   }, 'image/jpeg')
 }
+
+async function playTts() {
+  if (!result.value?.gptDescription?.description) return
+  ttsLoading.value = true
+
+  try {
+    // 第一次才呼叫後端
+    if (!ttsAudio.value) {
+      const form = new FormData()
+      form.append('text', result.value.gptDescription.description)
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE}/api/tts`,
+        form
+      )
+
+      ttsAudio.value = base64ToBlob(res.data.audioBase64, 'audio/mpeg')
+    }
+
+    // 用已儲存音檔播放
+    const url = URL.createObjectURL(ttsAudio.value)
+    audioPlayer.value.src = url
+    audioPlayer.value.playbackRate = ttsSpeed.value
+    audioPlayer.value.play()
+    playing.value = true
+  } catch (err) {
+    const data = err?.response?.data
+    if (data?.code && data?.message) {
+      error.value = { code: data.code, message: data.message }
+    } else {
+      error.value = { code: 'Error', message: err.message || 'TTS 失敗' }
+    }
+  } finally {
+    ttsLoading.value = false
+  }
+}
+
+// base64 → Blob
+function base64ToBlob(base64, type = 'application/octet-stream') {
+  const binary = atob(base64)
+  const len = binary.length
+  const buffer = new Uint8Array(len)
+  for (let i = 0; i < len; i++) {
+    buffer[i] = binary.charCodeAt(i)
+  }
+  return new Blob([buffer], { type })
+}
+
+// 監聽滑桿，直接套用語速
+watch(ttsSpeed, (newSpeed) => {
+  if (audioPlayer.value) {
+    audioPlayer.value.playbackRate = newSpeed
+  }
+})
+
 </script>
 
 <style scoped>
@@ -237,6 +309,7 @@ html, body {
 .file-label {
   padding: 10px 20px;
   background: linear-gradient(45deg, #00eaff, #66ccff);
+  border: none;
   border-radius: 12px;
   color: white;
   font-weight: bold;
@@ -283,6 +356,18 @@ html, body {
   margin: 12px auto;
   display: block;
   box-shadow: 0 0 18px #00eaff;
+}
+
+input[type="range"] {
+  accent-color: #00eaff;
+}
+
+.tts-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
 }
 
 /* 結果區 */
