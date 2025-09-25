@@ -33,56 +33,57 @@
       <div v-if="loading" class="progress-bar">
         <div class="progress"></div>
       </div>
+      <br />
 
-      <div v-if="result" class="result">
-        <br />
-        <h3>📋 分析結果</h3>
-        <p><strong>辨識結果：</strong> {{ result.gptDescription.description }}</p>
+      <!-- 整合 result 與 error 區塊 -->
+      <div v-if="result || error" class="result">
+        <template v-if="result">
+          <br />
+          <h3>📋 分析結果</h3>
+          <p><strong>辨識結果：</strong> {{ result.gptDescription.description }}</p>
 
-        <!-- TTS 播放按鈕 -->
+          <!-- TTS 播放按鈕 -->
 
         <!-- 語速滑桿 -->
-        <div class="tts-controls">
-          <label>語速: {{ ttsSpeed.toFixed(1) }}x</label>
-          <input type="range" min="0.5" max="3" step="0.1" v-model.number="ttsSpeed" />
-          <button class="file-label" :disabled="ttsLoading" @click="playTts">
-            {{ ttsLoading ? '生成語音中...' : '🔊 播放語音' }}
-          </button>
-          <audio ref="audioPlayer" hidden></audio>
-        </div>
-        <p><strong>標籤：</strong>
-          <span v-for="(tag, i) in result.gptDescription.extraTags" :key="i" class="hashtag">
-            #{{ tag }} <span v-if="i < result.gptDescription.extraTags.length - 1">, </span>
-          </span>
-        </p>
-        <p><strong>信心值：</strong>
-          <span class="highlight">{{
-            (result.captionConfidence * 100).toFixed(2)
-          }}%</span>
-        </p>
-        <p><strong>分析時間：</strong> {{ (result.requestDurationMs).toFixed(2) }} 秒</p>
-        <br />
+          <div class="tts-controls">
+            <label>語速: {{ ttsSpeed.toFixed(1) }}x</label>
+            <input type="range" min="0.5" max="3" step="0.1" v-model.number="ttsSpeed" />
+            <button class="file-label" :disabled="ttsLoading" @click="playTts">
+              {{ ttsLoading ? '生成語音中...' : '🔊 播放語音' }}
+            </button>
+            <audio ref="audioPlayer" hidden></audio>
+          </div>
+          <p><strong>標籤：</strong>
+            <span v-for="(tag, i) in result.gptDescription.extraTags" :key="i" class="hashtag">
+              #{{ tag }} <span v-if="i < result.gptDescription.extraTags.length - 1">, </span>
+            </span>
+          </p>
+          <p><strong>信心值：</strong>
+            <span class="highlight">{{ (result.captionConfidence * 100).toFixed(2) }}%</span>
+          </p>
+          <p><strong>分析時間：</strong> {{ (result.requestDurationMs).toFixed(2) }} 秒</p>
+
+          <table class="result-table">
+            <thead>
+            <tr>
+              <th>標籤</th>
+              <th>信心值</th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(tag, i) in result.tags" :key="i">
+                <td>{{ tag.name }}</td>
+                <td>{{ (tag.confidence * 100).toFixed(2) }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
 
         <!-- 錯誤訊息 -->
         <div v-if="error" class="error">
           <strong>⚠️ {{ error.code }}</strong><br />
           {{ error.message }}
         </div>
-
-        <table class="result-table">
-          <thead>
-            <tr>
-              <th>標籤</th>
-              <th>信心值</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(tag, i) in result.tags" :key="i">
-              <td>{{ tag.name }}</td>
-              <td>{{ (tag.confidence * 100).toFixed(2) }}%</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
       <br />
     </div>
