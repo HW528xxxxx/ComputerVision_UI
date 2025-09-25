@@ -63,6 +63,12 @@
         <p><strong>分析時間：</strong> {{ (result.requestDurationMs).toFixed(2) }} 秒</p>
         <br />
 
+        <!-- 錯誤訊息 -->
+        <div v-if="error" class="error">
+          <strong>⚠️ {{ error.code }}</strong><br />
+          {{ error.message }}
+        </div>
+
         <table class="result-table">
           <thead>
             <tr>
@@ -79,12 +85,6 @@
         </table>
       </div>
       <br />
-
-      <!-- 錯誤訊息 -->
-      <div v-if="error" class="error">
-        <strong>⚠️ {{ error.code }}</strong><br />
-        {{ error.message }}
-      </div>
     </div>
   </div>
 </template>
