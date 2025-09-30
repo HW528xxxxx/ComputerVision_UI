@@ -128,7 +128,7 @@ async function upload() {
     form.append('file', file.value)
 
     const res = await axios.post(
-      `${import.meta.env.VITE_API_BASE}/api/analyze`,
+      `${import.meta.env.VITE_API_BASE}/api/Azure/analyze`,
       form,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
@@ -200,7 +200,7 @@ async function playTts() {
       form.append('text', result.value.gptDescription.description)
 
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE}/api/tts`,
+        `${import.meta.env.VITE_API_BASE}/api/Azure/tts`,
         form
       )
 
