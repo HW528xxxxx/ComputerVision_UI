@@ -5,8 +5,8 @@
 
       <div class="upload-area">
         <!-- 檔案選擇 -->
-        <label for="fileUpload" class="file-label">選擇圖片</label>
-        <input id="fileUpload" type="file" accept="image/*" @change="onFileChange" />
+        <input id="fileUpload" type="file" accept="image/*" ref="fileInput" @change="onFileChange" hidden />
+        <button class="file-label" @click="onSelectImageClick">選擇圖片</button>
 
         <!-- 開啟相機 -->
         <button class="file-label" @click="openCamera">開啟相機</button>
@@ -106,6 +106,7 @@ const audioPlayer = ref(null)
 const ttsAudio = ref(null)
 const ttsSpeed = ref(1.5)
 const playing = ref(false)
+const fileInput = ref(null)
 
 function onFileChange(e) {
   error.value = ''
@@ -236,6 +237,16 @@ function base64ToBlob(base64, type = 'application/octet-stream') {
   return new Blob([buffer], { type })
 }
 
+function onSelectImageClick() {
+  // 如果相機正在開啟中 → 先關閉相機
+  if (cameraActive.value) {
+    closeCamera()
+    return
+  }
+
+  fileInput.value?.click()
+}
+
 // 監聽滑桿，直接套用語速
 watch(ttsSpeed, (newSpeed) => {
   if (audioPlayer.value) {
@@ -341,11 +352,34 @@ html, body {
   cursor: not-allowed;
 }
 
-.camera-preview .button-group {
+.camera-preview {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 15px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #ffffff;
   display: flex;
-  gap: 12px; /* ✅ 按鈕之間的距離 */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
   margin-top: 8px;
-  justify-content: center; /* 如果要置中 */
+  justify-content: center;
+}
+
+/* 限制 video 尺寸，避免撐爆版面 */
+.camera-preview video {
+  width: 100%;
+  height: auto;
+  max-height: 500px; /* 限制高度避免太高 */
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 /* 圖片預覽 */
