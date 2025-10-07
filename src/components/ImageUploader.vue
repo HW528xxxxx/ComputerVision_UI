@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <!-- 載入中遮罩 -->
-    <loading v-if="loading || ttsLoading" />
+    <Loading v-if="loading || ttsLoading" />
 
     <div class="card">
       <h1 class="title">🔬 未來影像分析中心</h1>
@@ -95,7 +95,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import axios from 'axios'
-import Loading from './loading.vue'
+import Loading from './Loading.vue'
 
 const file = ref(null)
 const previewUrl = ref('')
