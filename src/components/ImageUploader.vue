@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <!-- 載入中遮罩 -->
-    <Loading v-if="loading || ttsLoading" />
+    <loading v-if="loading || ttsLoading" />
 
     <div class="card">
       <h1 class="title">🔬 未來影像分析中心</h1>
