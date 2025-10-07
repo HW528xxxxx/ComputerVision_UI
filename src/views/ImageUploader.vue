@@ -95,7 +95,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import axios from 'axios'
-import Loading from './Loading.vue'
+import Loading from '../components/Loading.vue'
 
 const file = ref(null)
 const previewUrl = ref('')

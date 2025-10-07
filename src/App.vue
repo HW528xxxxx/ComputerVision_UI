@@ -1,7 +1,7 @@
 <template>
-  <ImageUploader />
+  <router-view />
 </template>
 
 <script setup>
-import ImageUploader from './components/ImageUploader.vue'
+import ImageUploader from './views/ImageUploader.vue'
 </script>
