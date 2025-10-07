@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <!-- 載入中遮罩 -->
+    <Loading v-if="loading || ttsLoading" />
+
     <div class="card">
       <h1 class="title">🔬 未來影像分析中心</h1>
 
@@ -11,7 +14,13 @@
         <!-- 開啟相機 -->
         <button class="file-label" @click="openCamera">開啟相機</button>
 
-        <!-- 相機預覽 -->
+        <!-- 上傳按鈕 -->
+        <button class="file-label" :disabled="!file || loading" @click="upload">
+          {{ loading ? '分析中...' : '上傳分析' }}
+        </button>
+      </div>
+
+      <!-- 相機預覽 -->
         <div v-if="cameraActive" class="camera-preview">
           <video ref="video" autoplay playsinline></video>
           <div class="button-group">
@@ -19,12 +28,6 @@
             <button class="file-label" @click="closeCamera">❌ 關閉</button>
           </div>
         </div>
-
-        <!-- 上傳按鈕 -->
-        <button class="file-label" :disabled="!file || loading" @click="upload">
-          {{ loading ? '分析中...' : '上傳分析' }}
-        </button>
-      </div>
 
       <div v-if="previewUrl" class="preview">
         <img :src="previewUrl" alt="preview" />
@@ -92,6 +95,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import axios from 'axios'
+import Loading from './loading.vue'
 
 const file = ref(null)
 const previewUrl = ref('')
