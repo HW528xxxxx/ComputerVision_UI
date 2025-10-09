@@ -88,9 +88,6 @@
         </div>
       </div>
       <br />
-
-      <!-- 新增 ImageVisualizer 組件 -->
-      <ImageVisualizer :base64Image="annotatedImageBase64" />
     </div>
   </div>
 </template>
@@ -99,7 +96,6 @@
 import { ref, watch } from 'vue'
 import axios from 'axios'
 import Loading from './Loading.vue'
-import ImageVisualizer from './ImageVisualizer.vue'
 
 const file = ref(null)
 const previewUrl = ref('')
@@ -115,7 +111,6 @@ const ttsAudio = ref(null)
 const ttsSpeed = ref(1.5)
 const playing = ref(false)
 const fileInput = ref(null)
-const annotatedImageBase64 = ref('')
 
 function onFileChange(e) {
   error.value = ''
@@ -146,9 +141,13 @@ async function upload() {
     result.value = res.data
     const data = res.data
 
-    result.value = data
-
-    annotatedImageBase64.value = data.annotatedImageBase64 || ''
+    if (data.annotatedImageBase64) {
+      let base64 = data.annotatedImageBase64
+      if (!base64.startsWith('data:image')) {
+        base64 = `data:image/png;base64,${base64}`
+      }
+      previewUrl.value = base64
+    }
   } catch (err) {
     const data = err?.response?.data
     if (data?.code && data?.message) {
