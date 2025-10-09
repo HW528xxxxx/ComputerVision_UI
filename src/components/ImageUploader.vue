@@ -139,6 +139,15 @@ async function upload() {
     )
 
     result.value = res.data
+    const data = res.data
+
+    if (data.annotatedImageBase64) {
+      let base64 = data.annotatedImageBase64
+      if (!base64.startsWith('data:image')) {
+        base64 = `data:image/png;base64,${base64}`
+      }
+      previewUrl.value = base64
+    }
   } catch (err) {
     const data = err?.response?.data
     if (data?.code && data?.message) {
