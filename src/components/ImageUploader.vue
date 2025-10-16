@@ -18,6 +18,12 @@
         <button class="file-label" :disabled="!file || loading" @click="upload">
           {{ loading ? '分析中...' : '上傳分析' }}
         </button>
+
+        <!-- 物件追蹤 -->
+        <button class="file-label" @click="openObjectTracking">物件追蹤</button>
+
+        <!-- 顯示 ObjectTracking 元件 -->
+        <ObjectTracking v-if="showObjectTracking" @close="closeObjectTracking" />
       </div>
 
       <!-- 相機預覽 -->
@@ -96,6 +102,7 @@
 import { ref, watch } from 'vue'
 import axios from 'axios'
 import Loading from './Loading.vue'
+import ObjectTracking from './ObjectTracking.vue'
 
 const file = ref(null)
 const previewUrl = ref('')
@@ -258,6 +265,17 @@ function onSelectImageClick() {
   }
 
   fileInput.value?.click()
+}
+
+// 控制是否顯示 ObjectTracking 元件
+const showObjectTracking = ref(false)
+
+const openObjectTracking = () => {
+  showObjectTracking.value = true
+}
+
+const closeObjectTracking = () => {
+  showObjectTracking.value = false
 }
 
 // 監聽滑桿，直接套用語速
