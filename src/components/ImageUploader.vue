@@ -3,6 +3,12 @@
     <!-- 載入中遮罩 -->
     <Loading v-if="loading || ttsLoading" />
 
+    <!-- IP 同意彈窗 -->
+    <IpConsentModal 
+      v-model="showIpConsent"
+      @consent="handleConsent"
+    />
+
     <div class="card">
       <h1 class="title">🔬 未來影像分析中心</h1>
 
@@ -96,6 +102,7 @@
 import { ref, watch } from 'vue'
 import axios from 'axios'
 import Loading from './Loading.vue'
+import IpConsentModal from './IpConsentModal.vue'
 
 const file = ref(null)
 const previewUrl = ref('')
@@ -111,6 +118,8 @@ const ttsAudio = ref(null)
 const ttsSpeed = ref(1.5)
 const playing = ref(false)
 const fileInput = ref(null)
+const showIpConsent = ref(true)
+const ipConsentGiven = ref(false)
 
 function onFileChange(e) {
   error.value = ''
@@ -258,6 +267,13 @@ function onSelectImageClick() {
   }
 
   fileInput.value?.click()
+}
+
+function handleConsent(consent) {
+  ipConsentGiven.value = consent
+  if (!consent) {
+    error.value = { code: 'ConsentRequired', message: '您必須同意 IP 記錄才能使用此功能' }
+  }
 }
 
 // 監聽滑桿，直接套用語速
