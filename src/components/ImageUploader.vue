@@ -1,17 +1,32 @@
 <template>
   <div class="container">
+    <!-- 載入中遮罩 -->
+    <Loading v-if="loading || ttsLoading" />
+
+    <!-- IP 同意彈窗 -->
+    <IpConsentModal 
+      v-model="showIpConsent"
+      @consent="handleConsent"
+    />
+
     <div class="card">
       <h1 class="title">🔬 未來影像分析中心</h1>
 
       <div class="upload-area">
         <!-- 檔案選擇 -->
-        <label for="fileUpload" class="file-label">選擇圖片</label>
-        <input id="fileUpload" type="file" accept="image/*" @change="onFileChange" />
+        <input id="fileUpload" type="file" accept="image/*" ref="fileInput" @change="onFileChange" hidden />
+        <button class="file-label" @click="onSelectImageClick">選擇圖片</button>
 
         <!-- 開啟相機 -->
         <button class="file-label" @click="openCamera">開啟相機</button>
 
-        <!-- 相機預覽 -->
+        <!-- 上傳按鈕 -->
+        <button class="file-label" :disabled="!file || loading" @click="upload">
+          {{ loading ? '分析中...' : '上傳分析' }}
+        </button>
+      </div>
+
+      <!-- 相機預覽 -->
         <div v-if="cameraActive" class="camera-preview">
           <video ref="video" autoplay playsinline></video>
           <div class="button-group">
@@ -19,12 +34,6 @@
             <button class="file-label" @click="closeCamera">❌ 關閉</button>
           </div>
         </div>
-
-        <!-- 上傳按鈕 -->
-        <button class="file-label" :disabled="!file || loading" @click="upload">
-          {{ loading ? '分析中...' : '上傳分析' }}
-        </button>
-      </div>
 
       <div v-if="previewUrl" class="preview">
         <img :src="previewUrl" alt="preview" />
@@ -92,6 +101,8 @@
 <script setup>
 import { ref, watch } from 'vue'
 import axios from 'axios'
+import Loading from './Loading.vue'
+import IpConsentModal from './IpConsentModal.vue'
 
 const file = ref(null)
 const previewUrl = ref('')
@@ -106,6 +117,9 @@ const audioPlayer = ref(null)
 const ttsAudio = ref(null)
 const ttsSpeed = ref(1.5)
 const playing = ref(false)
+const fileInput = ref(null)
+const showIpConsent = ref(true)
+const ipConsentGiven = ref(false)
 
 function onFileChange(e) {
   error.value = ''
@@ -128,12 +142,21 @@ async function upload() {
     form.append('file', file.value)
 
     const res = await axios.post(
-      `${import.meta.env.VITE_API_BASE}/api/analyze`,
+      `${import.meta.env.VITE_API_BASE}/api/Azure/analyze`,
       form,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
 
     result.value = res.data
+    const data = res.data
+
+    if (data.annotatedImageBase64) {
+      let base64 = data.annotatedImageBase64
+      if (!base64.startsWith('data:image')) {
+        base64 = `data:image/png;base64,${base64}`
+      }
+      previewUrl.value = base64
+    }
   } catch (err) {
     const data = err?.response?.data
     if (data?.code && data?.message) {
@@ -200,7 +223,7 @@ async function playTts() {
       form.append('text', result.value.gptDescription.description)
 
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE}/api/tts`,
+        `${import.meta.env.VITE_API_BASE}/api/Azure/tts`,
         form
       )
 
@@ -234,6 +257,23 @@ function base64ToBlob(base64, type = 'application/octet-stream') {
     buffer[i] = binary.charCodeAt(i)
   }
   return new Blob([buffer], { type })
+}
+
+function onSelectImageClick() {
+  // 如果相機正在開啟中 → 先關閉相機
+  if (cameraActive.value) {
+    closeCamera()
+    return
+  }
+
+  fileInput.value?.click()
+}
+
+function handleConsent(consent) {
+  ipConsentGiven.value = consent
+  if (!consent) {
+    error.value = { code: 'ConsentRequired', message: '您必須同意 IP 記錄才能使用此功能' }
+  }
 }
 
 // 監聽滑桿，直接套用語速
@@ -341,11 +381,34 @@ html, body {
   cursor: not-allowed;
 }
 
-.camera-preview .button-group {
+.camera-preview {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 15px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #ffffff;
   display: flex;
-  gap: 12px; /* ✅ 按鈕之間的距離 */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
   margin-top: 8px;
-  justify-content: center; /* 如果要置中 */
+  justify-content: center;
+}
+
+/* 限制 video 尺寸，避免撐爆版面 */
+.camera-preview video {
+  width: 100%;
+  height: auto;
+  max-height: 500px; /* 限制高度避免太高 */
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 /* 圖片預覽 */
