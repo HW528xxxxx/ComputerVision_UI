@@ -26,8 +26,8 @@ const props = defineProps({
 
 const emits = defineEmits(['update:modelValue'])
 
-async function accept() {
-    const res = await axios.post(
+function accept() {
+    const res = axios.post(
         `${import.meta.env.VITE_API_BASE}/api/Notify/enter`,
         props.form,
         { headers: { 'Content-Type': 'multipart/form-data' } }
@@ -81,6 +81,7 @@ async function accept() {
 .modal-buttons {
   display: flex;
   justify-content: center;
+  outline: none;
 }
 
 .modal-buttons button {
@@ -93,6 +94,7 @@ async function accept() {
   font-size: 1rem;
   cursor: pointer;
   transition: 0.3s ease;
+  outline: none;
 }
 
 .modal-buttons button:hover {
